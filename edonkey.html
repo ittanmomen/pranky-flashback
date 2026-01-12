@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eDonkey2000 - Connected</title>
+    <style>
+        :root {
+            --win-grey: #c0c0c0;
+            --win-dark: #808080;
+            --win-light: #ffffff;
+            --win-text: #000000;
+            --win-blue: #000080;
+            --row-select: #000080;
+        }
+
+        body {
+            background-color: var(--win-grey);
+            font-family: 'Tahoma', 'Segoe UI', sans-serif;
+            font-size: 11px;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* --- Toolbar --- */
+        .toolbar {
+            display: flex;
+            padding: 4px;
+            border-bottom: 1px solid var(--win-dark);
+            background: var(--win-grey);
+        }
+
+        .tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 50px;
+            border: 1px solid transparent;
+            cursor: default;
+            margin-right: 2px;
+        }
+
+        .tool-btn:hover {
+            border-top: 1px solid var(--win-light);
+            border-left: 1px solid var(--win-light);
+            border-right: 1px solid var(--win-dark);
+            border-bottom: 1px solid var(--win-dark);
+        }
+
+        .tool-btn.active {
+            border-top: 1px solid var(--win-dark);
+            border-left: 1px solid var(--win-dark);
+            border-right: 1px solid var(--win-light);
+            border-bottom: 1px solid var(--win-light);
+            background: #d4d4d4;
+        }
+
+        .tool-icon {
+            width: 32px;
+            height: 32px;
+            background-color: #a0a0a0; /* Placeholder for icon */
+            border-radius: 2px;
+            margin-bottom: 2px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+        }
+
+        /* --- Main Content Area --- */
+        .main-container {
+            flex-grow: 1;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Beveled container for the list */
+        .list-frame {
+            border-top: 1px solid var(--win-dark);
+            border-left: 1px solid var(--win-dark);
+            border-right: 1px solid var(--win-light);
+            border-bottom: 1px solid var(--win-light);
+            background: white;
+            flex-grow: 1;
+            overflow: auto;
+            position: relative;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        thead {
+            position: sticky;
+            top: 0;
+            background: var(--win-grey);
+            z-index: 10;
+        }
+
+        th {
+            text-align: left;
+            padding: 2px 4px;
+            border-top: 1px solid var(--win-light);
+            border-left: 1px solid var(--win-light);
+            border-right: 1px solid var(--win-dark);
+            border-bottom: 1px solid var(--win-dark);
+            font-weight: normal;
+            font-size: 11px;
+            position: relative;
+        }
+        
+        tr {
+            height: 18px;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f7f7f7;
+        }
+
+        tr.selected {
+            background-color: var(--win-blue);
+            color: white;
+        }
+
+        td {
+            padding: 2px 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: default;
+        }
+
+        /* --- Progress Bar Simulation --- */
+        .progress-container {
+            width: 100%;
+            height: 12px;
+            background-color: #e0e0e0;
+            border: 1px solid #808080;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #000080; /* Old school blue */
+            width: 0%;
+            transition: width 0.5s linear;
+        }
+        
+        .progress-chunks {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+        }
+        
+        .chunk {
+            flex-grow: 1;
+            border-right: 1px solid white;
+            opacity: 0.2;
+        }
+        
+        .chunk.downloaded {
+            background-color: #2b2b2b; /* Black parts for corruption/missing */
+            opacity: 0.8;
+        }
+        
+        .chunk.active {
+             background-color: #316ac5;
+             opacity: 1;
+        }
+
+        /* --- Status Bar --- */
+        .status-bar {
+            height: 22px;
+            border-top: 1px solid var(--win-light);
+            background: var(--win-grey);
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            font-size: 11px;
+        }
+        
+        .status-panel {
+            border: 1px solid;
+            border-color: var(--win-dark) var(--win-light) var(--win-light) var(--win-dark);
+            padding: 2px 5px;
+            margin-right: 2px;
+        }
+        
+        .status-main { flex-grow: 1; }
+        .status-info { width: 100px; text-align: right;}
+        
+        /* Utility */
+        .red-text { color: red; }
+        .black-text { color: black; }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <div class="tool-btn" onclick="alert('Connect feature disabled.')">
+            <div class="tool-icon" style="background: #4caf50;">⚡</div>
+            Connect
+        </div>
+        <div class="tool-btn">
+            <div class="tool-icon" style="background: #2196f3;">🔍</div>
+            Search
+        </div>
+        <div class="tool-btn active">
+            <div class="tool-icon" style="background: #ff9800;">⬇</div>
+            Transfers
+        </div>
+        <div class="tool-btn">
+            <div class="tool-icon" style="background: #9c27b0;">📂</div>
+            Shared
+        </div>
+        <div class="tool-btn">
+            <div class="tool-icon" style="background: #607d8b;">💬</div>
+            IRC
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="list-frame">
+            <table id="transferTable">
+                <thead>
+                    <tr>
+                        <th style="width: 250px;">File Name</th>
+                        <th style="width: 80px;">Size</th>
+                        <th style="width: 80px;">Transferred</th>
+                        <th style="width: 150px;">Progress</th>
+                        <th style="width: 80px;">Speed</th>
+                        <th style="width: 100px;">Status</th>
+                        <th style="width: 80px;">Sources</th>
+                    </tr>
+                </thead>
+                <tbody id="fileList">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-panel status-main">Connected to: Razorback 2.0 (192.168.0.1:4662) | Users: 4,102,933 | Files: 320,102,912</div>
+        <div class="status-panel status-info" id="totalSpeed">0.0 kB/s</div>
+    </div>
+
+    <script>
+        // Configuration for the "Prank"
+        const files = [
+            { name: "The_Matrix_DivX_Rip_By_DarkS0ul.avi", size: 700 * 1024 * 1024, current: 450 * 1024 * 1024 },
+            { name: "Adobe_Photoshop_CS2_Keygen_CRACKED.zip", size: 45 * 1024 * 1024, current: 40 * 1024 * 1024 },
+            { name: "Linkin_Park_Numb_Full_Album_mp3.rar", size: 120 * 1024 * 1024, current: 10 * 1024 * 1024 },
+            { name: "GTA_San_Andreas_NoCD_Patch.exe", size: 15 * 1024 * 1024, current: 2 * 1024 * 1024 },
+            { name: "Windows_XP_Professional_SP2_Corporate.iso", size: 580 * 1024 * 1024, current: 150 * 1024 * 1024 },
+            { name: "Lord_Of_The_Rings_Return_Of_The_King_CD1.mpg", size: 690 * 1024 * 1024, current: 685 * 1024 * 1024 },
+            { name: "Nero_Burning_Rom_v6.6.0.16_Enterprise.exe", size: 35 * 1024 * 1024, current: 5 * 1024 * 1024 },
+            { name: "Half_Life_2_Leaked_Beta.rar", size: 1024 * 1024 * 1024, current: 200 * 1024 * 1024 },
+            { name: "Kazaa_Lite_K_plus_2.4.3.exe", size: 4 * 1024 * 1024, current: 1 * 1024 * 1024 },
+            { name: "Shrek_2_DVDRip_XviD-aXXo.avi", size: 702 * 1024 * 1024, current: 300 * 1024 * 1024 }
+        ];
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        const tbody = document.getElementById('fileList');
+
+        // Initialize Rows
+        files.forEach((file, index) => {
+            const tr = document.createElement('tr');
+            if (index === 0) tr.classList.add('selected'); // Select first row
+            
+            // Generate visual "chunks" for progress bar
+            let chunkHTML = '';
+            for(let i=0; i<20; i++) {
+                chunkHTML += `<div class="chunk" id="chunk-${index}-${i}"></div>`;
+            }
+
+            tr.innerHTML = `
+                <td>${file.name}</td>
+                <td>${formatBytes(file.size)}</td>
+                <td id="curr-${index}">${formatBytes(file.current)}</td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="bar-${index}" style="width: 0%"></div>
+                        <div class="progress-chunks">${chunkHTML}</div>
+                    </div>
+                </td>
+                <td id="speed-${index}">0.0 kB/s</td>
+                <td id="status-${index}">Looking</td>
+                <td>${Math.floor(Math.random() * 50) + 1}/${Math.floor(Math.random() * 600) + 50}</td>
+            `;
+            tbody.appendChild(tr);
+            file.speed = 0;
+            file.status = "Looking";
+        });
+
+        // Click handler to select rows
+        tbody.addEventListener('click', (e) => {
+            const row = e.target.closest('tr');
+            if (!row) return;
+            document.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+            row.classList.add('selected');
+        });
+
+        // Simulation Loop
+        setInterval(() => {
+            let totalSpeed = 0;
+
+            files.forEach((file, index) => {
+                // Randomly change state occasionally
+                if (Math.random() > 0.95) {
+                    const states = ["Looking", "Transferring", "Waiting", "On Queue", "Hash failed"];
+                    // Weighted random toward "Waiting" or "Transferring"
+                    const r = Math.random();
+                    if(r > 0.8) file.status = "Looking";
+                    else if (r > 0.6) file.status = "On Queue";
+                    else file.status = "Transferring";
+                    
+                    if (file.current >= file.size) file.status = "Complete";
+                }
+
+                // If transferring, calculate speed
+                if (file.status === "Transferring") {
+                    // Fluctuate speed (classic 56k/DSL speeds: 0.5kb to 45kb)
+                    const fluctuation = (Math.random() - 0.5) * 5; 
+                    file.speed += fluctuation;
+                    if (file.speed < 0) file.speed = 0;
+                    if (file.speed > 60) file.speed = 60; // Max speed cap
+
+                    // Update data transferred
+                    file.current += file.speed * 1024 * 0.5; // 0.5s interval
+                    if (file.current > file.size) {
+                        file.current = file.size;
+                        file.speed = 0;
+                        file.status = "Complete";
+                    }
+                } else {
+                    file.speed = 0;
+                }
+
+                totalSpeed += file.speed;
+
+                // Update DOM
+                const percent = (file.current / file.size) * 100;
+                document.getElementById(`curr-${index}`).innerText = formatBytes(file.current);
+                document.getElementById(`bar-${index}`).style.width = percent + "%";
+                document.getElementById(`speed-${index}`).innerText = file.speed.toFixed(1) + " kB/s";
+                
+                const statusEl = document.getElementById(`status-${index}`);
+                statusEl.innerText = file.status;
+                
+                // Color status text
+                if (file.status === "Transferring") statusEl.style.color = "black";
+                else if (file.status === "Complete") statusEl.style.color = "green";
+                else statusEl.style.color = "gray";
+
+                // Update chunks (randomly fill them to look like "pieces" arriving)
+                if (file.status === "Transferring") {
+                   const chunkIndex = Math.floor((percent / 100) * 20);
+                   const chunkEl = document.getElementById(`chunk-${index}-${chunkIndex}`);
+                   if(chunkEl && Math.random() > 0.7) chunkEl.classList.add('active');
+                }
+            });
+
+            document.getElementById('totalSpeed').innerText = totalSpeed.toFixed(1) + " kB/s";
+
+        }, 500); // Update every 500ms
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>eMule v0.50a - Transfers</title>
+        <style>
+            :root {
+                --emule-bg: #f0f0f0;
+                --emule-border: #808080;
+                --emule-blue-light: #e1eaff;
+                --emule-blue-dark: #3366cc;
+                --emule-text: #000000;
+                --xp-toolbar-bg: #ece9d8;
+                --xp-btn-hover: #fffce5;
+                --xp-btn-border: #aca899;
+            }
+
+            body {
+                background-color: var(--emule-bg);
+                font-family: "Tahoma", sans-serif;
+                font-size: 11px;
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                user-select: none;
+            }
+
+            /* --- Header & Toolbar --- */
+            .header-bar {
+                background: linear-gradient(to bottom, #ffffff, #ece9d8);
+                padding: 2px 5px;
+                border-bottom: 1px solid var(--xp-btn-border);
+                font-weight: bold;
+                color: #444;
+            }
+
+            .toolbar {
+                display: flex;
+                background: var(--xp-toolbar-bg);
+                padding: 5px;
+                border-bottom: 1px solid var(--emule-border);
+            }
+
+            .tool-btn {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 55px;
+                height: 55px;
+                margin-right: 5px;
+                border: 1px solid transparent;
+                border-radius: 3px;
+                cursor: default;
+                background: transparent;
+            }
+
+            .tool-btn:hover {
+                background: linear-gradient(to bottom, #fffce5, #ffe7a2);
+                border: 1px solid #e6d8a7;
+            }
+
+            .tool-btn.active {
+                background: linear-gradient(to bottom, #e1eaff, #b5d0ff);
+                border: 1px solid var(--emule-blue-dark);
+            }
+
+            .tool-icon {
+                font-size: 24px;
+                margin-bottom: 3px;
+            }
+
+            /* --- Main Content Layout --- */
+            .main-container {
+                flex-grow: 1;
+                display: flex;
+                padding: 5px;
+                gap: 5px;
+                overflow: hidden;
+            }
+
+            .transfers-panel {
+                flex-grow: 3;
+                display: flex;
+                flex-direction: column;
+                border: 1px solid var(--emule-border);
+                background: white;
+            }
+
+            .info-panel {
+                flex-grow: 1;
+                width: 250px;
+                min-width: 200px;
+                border: 1px solid var(--emule-border);
+                background: white;
+                padding: 10px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+            }
+
+            /* --- Transfer List Table --- */
+            .list-container {
+                flex-grow: 1;
+                overflow: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+
+            thead {
+                position: sticky;
+                top: 0;
+                background: var(--xp-toolbar-bg);
+                z-index: 10;
+            }
+
+            th {
+                text-align: left;
+                padding: 3px 5px;
+                border-right: 1px solid var(--xp-btn-border);
+                border-bottom: 1px solid var(--xp-btn-border);
+                font-weight: normal;
+                box-shadow:
+                    inset 1px 1px 0 white,
+                    inset -1px -1px 0 #e0e0e0;
+            }
+
+            tr {
+                height: 20px;
+            }
+            tr:nth-child(even) {
+                background-color: #f7faff;
+            }
+
+            tr.selected {
+                background-color: var(--emule-blue-dark) !important;
+                color: white;
+            }
+
+            td {
+                padding: 2px 5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                border-right: 1px solid transparent;
+            }
+
+            /* --- Progress Bar --- */
+            .progress-container {
+                width: 100%;
+                height: 14px;
+                background-color: #e0e0e0;
+                border: 1px solid #808080;
+                position: relative;
+            }
+
+            .progress-bar {
+                height: 100%;
+                background: linear-gradient(to bottom, #4aa3df, #2266aa);
+                width: 0%;
+            }
+
+            /* --- Mule Image & Info --- */
+            .mule-img {
+                width: 120px;
+                height: auto;
+                margin-bottom: 20px;
+                opacity: 0.9;
+            }
+
+            .server-info {
+                text-align: center;
+                color: #444;
+                font-size: 11px;
+            }
+
+            .server-info h3 {
+                margin: 5px 0;
+                font-size: 12px;
+                color: var(--emule-blue-dark);
+            }
+
+            .server-stat {
+                margin: 2px 0;
+            }
+
+            /* --- Status Bar --- */
+            .status-bar {
+                height: 22px;
+                border-top: 1px solid var(--emule-border);
+                background: var(--xp-toolbar-bg);
+                display: flex;
+                align-items: center;
+                padding: 0 5px;
+                font-size: 11px;
+                color: #333;
+            }
+
+            .status-panel {
+                padding: 2px 8px;
+                border-right: 1px solid var(--xp-btn-border);
+                display: flex;
+                align-items: center;
+            }
+
+            .status-icon {
+                display: inline-block;
+                width: 8px;
+                height: 8px;
+                background-color: #4caf50;
+                border-radius: 50%;
+                margin-right: 5px;
+                box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+            }
+
+            /* Utility */
+            .txt-blue {
+                color: var(--emule-blue-dark);
+            }
+            .txt-red {
+                color: #d9534f;
+            }
+            .txt-green {
+                color: #5cb85c;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header-bar">eMule v0.50a [MorphXT v12.7]</div>
+
+        <div class="toolbar">
+            <div
+                class="tool-btn"
+                onclick="
+                    alert(
+                        'Disconnect? Are you crazy? It took 3 hours to connect!',
+                    )
+                "
+            >
+                <div class="tool-icon" style="color: #d9534f">⚡</div>
+                Disconnect
+            </div>
+            <div class="tool-btn">
+                <div class="tool-icon" style="color: #5bc0de">🌐</div>
+                Kad
+            </div>
+            <div class="tool-btn">
+                <div class="tool-icon" style="color: #f0ad4e">🔍</div>
+                Search
+            </div>
+            <div class="tool-btn active">
+                <div class="tool-icon" style="color: #5cb85c">⬇️</div>
+                Transfers
+            </div>
+            <div class="tool-btn">
+                <div class="tool-icon" style="color: #aaa">📂</div>
+                Shared
+            </div>
+            <div class="tool-btn">
+                <div class="tool-icon" style="color: #337ab7">💬</div>
+                IRC
+            </div>
+            <div class="tool-btn" style="margin-left: auto">
+                <div class="tool-icon" style="color: #777">⚙️</div>
+                Options
+            </div>
+        </div>
+
+        <div class="main-container">
+            <div class="transfers-panel">
+                <div class="list-container">
+                    <table id="transferTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 250px">File Name</th>
+                                <th style="width: 70px">Size</th>
+                                <th style="width: 70px">Completed</th>
+                                <th style="width: 130px">Progress</th>
+                                <th style="width: 70px">Speed</th>
+                                <th style="width: 80px">Sources (A/T)</th>
+                                <th style="width: 120px">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fileList"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <img class="mule-img" src="emule_mascot.png" alt="eMule Mascot" />
+
+                <div class="server-info">
+                    <h3>ED2K Network</h3>
+                    <div class="server-stat">
+                        Status: <span class="txt-blue">Connected</span>
+                    </div>
+                    <div class="server-stat">
+                        IP:Port: <span class="txt-blue">89.12.33.44:4662</span>
+                    </div>
+                    <div class="server-stat">
+                        ID: <span class="txt-blue">High ID</span>
+                    </div>
+                    <h3>Kad Network</h3>
+                    <div class="server-stat">
+                        Status: <span class="txt-blue">Firewalled</span>
+                    </div>
+                    <div class="server-stat">
+                        Buddy: <span class="txt-red">None</span>
+                    </div>
+                    <h3>Session</h3>
+                    <div class="server-stat">
+                        Up: <span class="txt-blue" id="totalUp">12.5 kB/s</span>
+                    </div>
+                    <div class="server-stat">
+                        Down:
+                        <span class="txt-blue" id="totalDownPanel"
+                            >0.0 kB/s</span
+                        >
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-panel" style="width: 150px">
+                <span class="status-icon"></span> eD2K: Connected to
+                DonkeyServer No1
+            </div>
+            <div class="status-panel" style="width: 150px">
+                <span class="status-icon" style="background: #f0ad4e"></span>
+                Kad: Firewalled
+            </div>
+            <div class="status-panel">Up: <span id="sbUp">12.5</span> kB/s</div>
+            <div class="status-panel">
+                Down: <span id="sbDown">0.0</span> kB/s
+            </div>
+            <div class="status-panel" style="flex-grow: 1">
+                Queue: 1,420 / 2,500
+            </div>
+        </div>
+
+        <script>
+            // Configuration for the "Prank"
+            const files = [
+                {
+                    name: "Matrix_Reloaded_DVDRip_XviD-BiN.CD1.avi",
+                    size: 701 * 1024 * 1024,
+                    current: 698 * 1024 * 1024,
+                },
+                {
+                    name: "[ www.Goldesel.to ] - WinRAR 3.51 Corporate + Keygen.rar",
+                    size: 1.2 * 1024 * 1024,
+                    current: 0.1 * 1024 * 1024,
+                },
+                {
+                    name: "Britney_Spears_Toxic_ProRes_Leaked.mpg",
+                    size: 150 * 1024 * 1024,
+                    current: 45 * 1024 * 1024,
+                },
+                {
+                    name: "Adobe.Photoshop.CS.v8.0.Final-Paradox.iso",
+                    size: 480 * 1024 * 1024,
+                    current: 475 * 1024 * 1024,
+                },
+                {
+                    name: "Need.For.Speed.Underground.2.CD2-RELOADED.bin",
+                    size: 720 * 1024 * 1024,
+                    current: 10 * 1024 * 1024,
+                },
+                {
+                    name: "Counter-Strike_1.6_Non-Steam_Full_v23.exe",
+                    size: 250 * 1024 * 1024,
+                    current: 248 * 1024 * 1024,
+                },
+                {
+                    name: "Eminem_-_The_Eminem_Show_(Full_Album)_mp3_320kbps.zip",
+                    size: 145 * 1024 * 1024,
+                    current: 20 * 1024 * 1024,
+                },
+                {
+                    name: "MS.Office.2003.Pro.Volume.License.Key.txt",
+                    size: 1 * 1024,
+                    current: 0,
+                },
+                {
+                    name: "Star.Wars.Episode.III.Revenge.of.the.Sith.WORKPRINT.SVCD-TCM.mpg",
+                    size: 850 * 1024 * 1024,
+                    current: 400 * 1024 * 1024,
+                },
+                {
+                    name: "Norton_AntiVirus_2005_Full_SystemWorks.exe",
+                    size: 55 * 1024 * 1024,
+                    current: 5 * 1024 * 1024,
+                },
+            ];
+
+            function formatBytes(bytes) {
+                if (bytes === 0) return "0 B";
+                const k = 1024;
+                const sizes = ["B", "KB", "MB", "GB"];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return (
+                    parseFloat((bytes / Math.pow(k, i)).toFixed(2)) +
+                    " " +
+                    sizes[i]
+                );
+            }
+
+            const tbody = document.getElementById("fileList");
+
+            // Initialize Rows
+            files.forEach((file, index) => {
+                const tr = document.createElement("tr");
+                file.totalSources = Math.floor(Math.random() * 300) + 20;
+                file.availSources = Math.floor(
+                    Math.random() * file.totalSources,
+                );
+                file.qr = Math.floor(Math.random() * 1000) + 100; // Initial queue rank
+
+                tr.innerHTML = `
+                <td title="${file.name}">${file.name}</td>
+                <td>${formatBytes(file.size)}</td>
+                <td id="curr-${index}">${formatBytes(file.current)}</td>
+                <td>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="bar-${index}" style="width: 0%"></div>
+                    </div>
+                </td>
+                <td id="speed-${index}" class="txt-blue">0.0 kB/s</td>
+                <td id="sources-${index}">${file.availSources}/${file.totalSources}</td>
+                <td id="status-${index}">Waiting</td>
+            `;
+                tbody.appendChild(tr);
+                file.speed = 0;
+                file.status = "Waiting";
+                file.stateTimer = 0;
+            });
+
+            // Click handler to select rows
+            tbody.addEventListener("click", (e) => {
+                const row = e.target.closest("tr");
+                if (!row) return;
+                document
+                    .querySelectorAll("tr")
+                    .forEach((r) => r.classList.remove("selected"));
+                row.classList.add("selected");
+            });
+
+            // Simulation Loop
+            setInterval(() => {
+                let totalDownloadSpeed = 0;
+
+                files.forEach((file, index) => {
+                    file.stateTimer++;
+
+                    // Change state rarely
+                    if (file.stateTimer > 20 && Math.random() > 0.9) {
+                        file.stateTimer = 0;
+                        const r = Math.random();
+                        if (file.current >= file.size) {
+                            file.status = "Completing...";
+                        } else if (r > 0.7) {
+                            file.status = "Downloading";
+                        } else if (r > 0.5) {
+                            file.status = "Paused";
+                        } else {
+                            file.status = "Waiting";
+                            file.qr = Math.floor(Math.random() * 800) + 50; // Reset QR
+                        }
+                    }
+
+                    // Simulate logic based on status
+                    if (file.status === "Downloading") {
+                        // Classic terrible eMule speeds (e.g., 0.1kb/s to 8kb/s per file)
+                        const fluctuation = (Math.random() - 0.5) * 2;
+                        file.speed += fluctuation;
+                        if (file.speed < 0.1) file.speed = 0.1;
+                        if (file.speed > 12) file.speed = 12; // Cap individual speed
+
+                        file.current += file.speed * 1024 * 0.5;
+                        if (file.current >= file.size) {
+                            file.current = file.size;
+                            file.speed = 0;
+                            file.status = "Complete";
+                        }
+                    } else if (file.status === "Waiting") {
+                        file.speed = 0;
+                        // Slowly decrease QR
+                        if (Math.random() > 0.6 && file.qr > 1) file.qr--;
+                    } else {
+                        file.speed = 0;
+                    }
+
+                    totalDownloadSpeed += file.speed;
+
+                    // Update DOM
+                    const percent = (file.current / file.size) * 100;
+                    document.getElementById(`curr-${index}`).innerText =
+                        formatBytes(file.current);
+                    document.getElementById(`bar-${index}`).style.width =
+                        percent + "%";
+                    document.getElementById(`speed-${index}`).innerText =
+                        file.speed > 0 ? file.speed.toFixed(1) + " kB/s" : "";
+
+                    let statusText = file.status;
+                    if (file.status === "Waiting")
+                        statusText += ` (QR: ${file.qr})`;
+
+                    const statusEl = document.getElementById(`status-${index}`);
+                    statusEl.innerText = statusText;
+
+                    // Color status text
+                    statusEl.className = ""; // reset
+                    if (file.status === "Downloading")
+                        statusEl.classList.add("txt-blue");
+                    else if (file.status === "Complete")
+                        statusEl.classList.add("txt-green");
+                    else if (file.status === "Paused")
+                        statusEl.classList.add("txt-red");
+                });
+
+                const totalDownStr = totalDownloadSpeed.toFixed(1);
+                document.getElementById("sbDown").innerText = totalDownStr;
+                document.getElementById("totalDownPanel").innerText =
+                    totalDownStr + " kB/s";
+
+                // Fluctuate upload speed slightly for realism
+                const upSpeed = (12.5 + (Math.random() - 0.5)).toFixed(1);
+                document.getElementById("sbUp").innerText = upSpeed;
+                document.getElementById("totalUp").innerText =
+                    upSpeed + " kB/s";
+            }, 500); // Update every 500ms
+        </script>
+    </body>
+</html>

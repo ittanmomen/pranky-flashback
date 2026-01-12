@@ -3,9 +3,151 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>eMule v0.50a - Transfers</title>
+        <title>eMule v0.50a on Windows 11</title>
         <style>
+            /* =========================================
+               WINDOWS 11 OS SIMULATION CSS
+               ========================================= */
             :root {
+                --win11-bg: #f3f3f3;
+                --win11-border: #d1d1d1;
+                --win11-title-text: #1a1a1a;
+                --win11-shadow: 0 16px 32px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0,0,0,0.06);
+            }
+
+            body {
+                margin: 0;
+                padding: 0;
+                height: 100vh;
+                width: 100vw;
+                overflow: hidden;
+                /* Windows 11 Default "Bloom" style gradient */
+                background: url('https://images.unsplash.com/photo-1627663243956-b09e083c7497?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed;
+                background-size: cover;
+                font-family: "Segoe UI", sans-serif;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            /* The Window Container */
+            #win11-window {
+                position: absolute;
+                width: 900px;
+                height: 600px;
+                background-color: #f0f0f0; /* Matches eMule bg */
+                border-radius: 8px;
+                box-shadow: var(--win11-shadow);
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                min-width: 400px;
+                min-height: 300px;
+                animation: popIn 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+            }
+
+            @keyframes popIn {
+                0% { transform: scale(0.95); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+
+            /* Title Bar */
+            .win11-titlebar {
+                height: 32px;
+                background: white;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                user-select: none;
+                border-bottom: 1px solid #e5e5e5;
+            }
+
+            .title-drag-area {
+                flex-grow: 1;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                padding-left: 10px;
+                font-size: 12px;
+                color: var(--win11-title-text);
+                cursor: default;
+            }
+
+            .app-icon {
+                width: 16px;
+                height: 16px;
+                margin-right: 10px;
+                /* Generic Mule Icon placeholder */
+                background-color: #cdb289;
+                border-radius: 2px;
+                display: inline-block;
+                text-align: center;
+                line-height: 16px;
+                font-size: 10px;
+                color: white;
+            }
+
+            /* Window Controls */
+            .win-controls {
+                display: flex;
+                height: 100%;
+            }
+
+            .win-btn {
+                width: 46px;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-size: 10px;
+                transition: background 0.1s;
+                cursor: default;
+            }
+
+            .win-btn svg {
+                width: 10px;
+                height: 10px;
+            }
+
+            .win-btn:hover {
+                background-color: #e5e5e5;
+            }
+
+            .win-btn.close-btn:hover {
+                background-color: #c42b1c;
+                color: white;
+            }
+            
+            .win-btn.close-btn:hover svg path {
+                fill: white;
+            }
+
+            /* Resize Handle */
+            .resize-handle {
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                width: 15px;
+                height: 15px;
+                cursor: se-resize;
+                z-index: 100;
+            }
+
+            /* Content Wrapper to hold eMule */
+            .window-content-area {
+                flex-grow: 1;
+                position: relative;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* =========================================
+               YOUR ORIGINAL EMULE CSS (Scoped)
+               ========================================= */
+            /* I changed 'body' to '.emule-app' to fit inside the window */
+            
+            .emule-app {
                 --emule-bg: #f0f0f0;
                 --emule-border: #808080;
                 --emule-blue-light: #e1eaff;
@@ -14,22 +156,22 @@
                 --xp-toolbar-bg: #ece9d8;
                 --xp-btn-hover: #fffce5;
                 --xp-btn-border: #aca899;
-            }
 
-            body {
                 background-color: var(--emule-bg);
                 font-family: "Tahoma", sans-serif;
                 font-size: 11px;
                 margin: 0;
                 padding: 0;
-                height: 100vh;
+                height: 100%; /* Changed from 100vh */
+                width: 100%;
                 display: flex;
                 flex-direction: column;
                 user-select: none;
+                text-align: left; /* Ensure text alignment resets */
             }
 
             /* --- Header & Toolbar --- */
-            .header-bar {
+            .emule-app .header-bar {
                 background: linear-gradient(to bottom, #ffffff, #ece9d8);
                 padding: 2px 5px;
                 border-bottom: 1px solid var(--xp-btn-border);
@@ -37,14 +179,14 @@
                 color: #444;
             }
 
-            .toolbar {
+            .emule-app .toolbar {
                 display: flex;
                 background: var(--xp-toolbar-bg);
                 padding: 5px;
                 border-bottom: 1px solid var(--emule-border);
             }
 
-            .tool-btn {
+            .emule-app .tool-btn {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -58,23 +200,23 @@
                 background: transparent;
             }
 
-            .tool-btn:hover {
+            .emule-app .tool-btn:hover {
                 background: linear-gradient(to bottom, #fffce5, #ffe7a2);
                 border: 1px solid #e6d8a7;
             }
 
-            .tool-btn.active {
+            .emule-app .tool-btn.active {
                 background: linear-gradient(to bottom, #e1eaff, #b5d0ff);
                 border: 1px solid var(--emule-blue-dark);
             }
 
-            .tool-icon {
+            .emule-app .tool-icon {
                 font-size: 24px;
                 margin-bottom: 3px;
             }
 
             /* --- Main Content Layout --- */
-            .main-container {
+            .emule-app .main-container {
                 flex-grow: 1;
                 display: flex;
                 padding: 5px;
@@ -82,7 +224,7 @@
                 overflow: hidden;
             }
 
-            .transfers-panel {
+            .emule-app .transfers-panel {
                 flex-grow: 3;
                 display: flex;
                 flex-direction: column;
@@ -90,7 +232,7 @@
                 background: white;
             }
 
-            .info-panel {
+            .emule-app .info-panel {
                 flex-grow: 1;
                 width: 250px;
                 min-width: 200px;
@@ -104,25 +246,25 @@
             }
 
             /* --- Transfer List Table --- */
-            .list-container {
+            .emule-app .list-container {
                 flex-grow: 1;
                 overflow: auto;
             }
 
-            table {
+            .emule-app table {
                 width: 100%;
                 border-collapse: collapse;
                 table-layout: fixed;
             }
 
-            thead {
+            .emule-app thead {
                 position: sticky;
                 top: 0;
                 background: var(--xp-toolbar-bg);
                 z-index: 10;
             }
 
-            th {
+            .emule-app th {
                 text-align: left;
                 padding: 3px 5px;
                 border-right: 1px solid var(--xp-btn-border);
@@ -133,19 +275,19 @@
                     inset -1px -1px 0 #e0e0e0;
             }
 
-            tr {
+            .emule-app tr {
                 height: 20px;
             }
-            tr:nth-child(even) {
+            .emule-app tr:nth-child(even) {
                 background-color: #f7faff;
             }
 
-            tr.selected {
+            .emule-app tr.selected {
                 background-color: var(--emule-blue-dark) !important;
                 color: white;
             }
 
-            td {
+            .emule-app td {
                 padding: 2px 5px;
                 white-space: nowrap;
                 overflow: hidden;
@@ -154,7 +296,7 @@
             }
 
             /* --- Progress Bar --- */
-            .progress-container {
+            .emule-app .progress-container {
                 width: 100%;
                 height: 14px;
                 background-color: #e0e0e0;
@@ -162,38 +304,38 @@
                 position: relative;
             }
 
-            .progress-bar {
+            .emule-app .progress-bar {
                 height: 100%;
                 background: linear-gradient(to bottom, #4aa3df, #2266aa);
                 width: 0%;
             }
 
             /* --- Mule Image & Info --- */
-            .mule-img {
+            .emule-app .mule-img {
                 width: 120px;
                 height: auto;
                 margin-bottom: 20px;
                 opacity: 0.9;
             }
 
-            .server-info {
+            .emule-app .server-info {
                 text-align: center;
                 color: #444;
                 font-size: 11px;
             }
 
-            .server-info h3 {
+            .emule-app .server-info h3 {
                 margin: 5px 0;
                 font-size: 12px;
                 color: var(--emule-blue-dark);
             }
 
-            .server-stat {
+            .emule-app .server-stat {
                 margin: 2px 0;
             }
 
             /* --- Status Bar --- */
-            .status-bar {
+            .emule-app .status-bar {
                 height: 22px;
                 border-top: 1px solid var(--emule-border);
                 background: var(--xp-toolbar-bg);
@@ -204,14 +346,14 @@
                 color: #333;
             }
 
-            .status-panel {
+            .emule-app .status-panel {
                 padding: 2px 8px;
                 border-right: 1px solid var(--xp-btn-border);
                 display: flex;
                 align-items: center;
             }
 
-            .status-icon {
+            .emule-app .status-icon {
                 display: inline-block;
                 width: 8px;
                 height: 8px;
@@ -222,133 +364,159 @@
             }
 
             /* Utility */
-            .txt-blue {
+            .emule-app .txt-blue {
                 color: var(--emule-blue-dark);
             }
-            .txt-red {
+            .emule-app .txt-red {
                 color: #d9534f;
             }
-            .txt-green {
+            .emule-app .txt-green {
                 color: #5cb85c;
             }
         </style>
     </head>
     <body>
-        <div class="header-bar">eMule v0.50a [MorphXT v12.7]</div>
 
-        <div class="toolbar">
-            <div
-                class="tool-btn"
-                onclick="
-                    alert(
-                        'Disconnect? Are you crazy? It took 3 hours to connect!',
-                    )
-                "
-            >
-                <div class="tool-icon" style="color: #d9534f">⚡</div>
-                Disconnect
-            </div>
-            <div class="tool-btn">
-                <div class="tool-icon" style="color: #5bc0de">🌐</div>
-                Kad
-            </div>
-            <div class="tool-btn">
-                <div class="tool-icon" style="color: #f0ad4e">🔍</div>
-                Search
-            </div>
-            <div class="tool-btn active">
-                <div class="tool-icon" style="color: #5cb85c">⬇️</div>
-                Transfers
-            </div>
-            <div class="tool-btn">
-                <div class="tool-icon" style="color: #aaa">📂</div>
-                Shared
-            </div>
-            <div class="tool-btn">
-                <div class="tool-icon" style="color: #337ab7">💬</div>
-                IRC
-            </div>
-            <div class="tool-btn" style="margin-left: auto">
-                <div class="tool-icon" style="color: #777">⚙️</div>
-                Options
-            </div>
-        </div>
+        <div id="win11-window">
+            
+            <div class="resize-handle" id="resizeHandle"></div>
 
-        <div class="main-container">
-            <div class="transfers-panel">
-                <div class="list-container">
-                    <table id="transferTable">
-                        <thead>
-                            <tr>
-                                <th style="width: 250px">File Name</th>
-                                <th style="width: 70px">Size</th>
-                                <th style="width: 70px">Completed</th>
-                                <th style="width: 130px">Progress</th>
-                                <th style="width: 70px">Speed</th>
-                                <th style="width: 80px">Sources (A/T)</th>
-                                <th style="width: 120px">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="fileList"></tbody>
-                    </table>
+            <div class="win11-titlebar" id="titleBar">
+                <div class="title-drag-area">
+                    <span class="app-icon">M</span>
+                    eMule v0.50a - Transfers
+                </div>
+                <div class="win-controls">
+                    <div class="win-btn" onclick="minimizeWindow()">
+                        <svg viewBox="0 0 10 1"><rect width="10" height="1"></rect></svg>
+                    </div>
+                    <div class="win-btn" onclick="maximizeWindow()">
+                        <svg viewBox="0 0 10 10"><rect width="10" height="10" fill="none" stroke="currentColor" stroke-width="1"></rect></svg>
+                    </div>
+                    <div class="win-btn close-btn" onclick="closeWindow()">
+                        <svg viewBox="0 0 10 10"><path d="M1,1 L9,9 M9,1 L1,9" stroke="currentColor" stroke-width="1"></path></svg>
+                    </div>
                 </div>
             </div>
 
-            <div class="info-panel">
-                <img class="mule-img" src="emule_mascot.png" alt="eMule Mascot" />
+            <div class="window-content-area">
+                <div class="emule-app">
+                    <div class="header-bar">eMule v0.50a [MorphXT v12.7]</div>
 
-                <div class="server-info">
-                    <h3>ED2K Network</h3>
-                    <div class="server-stat">
-                        Status: <span class="txt-blue">Connected</span>
-                    </div>
-                    <div class="server-stat">
-                        IP:Port: <span class="txt-blue">89.12.33.44:4662</span>
-                    </div>
-                    <div class="server-stat">
-                        ID: <span class="txt-blue">High ID</span>
-                    </div>
-                    <h3>Kad Network</h3>
-                    <div class="server-stat">
-                        Status: <span class="txt-blue">Firewalled</span>
-                    </div>
-                    <div class="server-stat">
-                        Buddy: <span class="txt-red">None</span>
-                    </div>
-                    <h3>Session</h3>
-                    <div class="server-stat">
-                        Up: <span class="txt-blue" id="totalUp">12.5 kB/s</span>
-                    </div>
-                    <div class="server-stat">
-                        Down:
-                        <span class="txt-blue" id="totalDownPanel"
-                            >0.0 kB/s</span
+                    <div class="toolbar">
+                        <div
+                            class="tool-btn"
+                            onclick="alert('Disconnect? Are you crazy? It took 3 hours to connect!')"
                         >
+                            <div class="tool-icon" style="color: #d9534f">⚡</div>
+                            Disconnect
+                        </div>
+                        <div class="tool-btn">
+                            <div class="tool-icon" style="color: #5bc0de">🌐</div>
+                            Kad
+                        </div>
+                        <div class="tool-btn">
+                            <div class="tool-icon" style="color: #f0ad4e">🔍</div>
+                            Search
+                        </div>
+                        <div class="tool-btn active">
+                            <div class="tool-icon" style="color: #5cb85c">⬇️</div>
+                            Transfers
+                        </div>
+                        <div class="tool-btn">
+                            <div class="tool-icon" style="color: #aaa">📂</div>
+                            Shared
+                        </div>
+                        <div class="tool-btn">
+                            <div class="tool-icon" style="color: #337ab7">💬</div>
+                            IRC
+                        </div>
+                        <div class="tool-btn" style="margin-left: auto">
+                            <div class="tool-icon" style="color: #777">⚙️</div>
+                            Options
+                        </div>
+                    </div>
+
+                    <div class="main-container">
+                        <div class="transfers-panel">
+                            <div class="list-container">
+                                <table id="transferTable">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 250px">File Name</th>
+                                            <th style="width: 70px">Size</th>
+                                            <th style="width: 70px">Completed</th>
+                                            <th style="width: 130px">Progress</th>
+                                            <th style="width: 70px">Speed</th>
+                                            <th style="width: 80px">Sources (A/T)</th>
+                                            <th style="width: 120px">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="fileList"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="info-panel">
+                            <img class="mule-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAMAAABHPGVmAAAAYFBMVEX///8zMzMAAABmZmZ3d3eZmZmIiIiqqqqBgYGxsbGtra2ioqK+vr7R0dGcnJzCwsLZ2dnq6urj4+Pv7+/MzMzJycn29vb6+vrW1tbGxsbh4eHe3t65ubnExMTNzc3s7Ox6m19rAAADtklEQVRogc2a23KjIBCG0w2KqMhJ1Gjuf9O1iQoIBjT2ZPav4sQUf1MGA4P596/2374jS5YsyZIlS5YsyZIlS5b+r/Qd+fHj8/f34+Pj9+9f0ff39/fPz0/u4+Pj17+iP0h/Cg2vFvWz6IdQ8bIiP4L+FpUvK/IL6A9R/bIiv4D+FjUvK/IL6E9R67Iiv4H+ELUvK/Ib6E9R97Iiv4M+Re3LivwO+hR1LyvyO+hT1L2syO+gT1H3siK/gz5F3cuK/A76FHUvK/I76FPUvazI76BPUfeyIr+D/q3Ir+h7C/oU/S76+y/oU1S9rMgfoE9R9bIif4A+RdXLivwB+hRVLyvyB+hTVL2syB+gT1H1sv4h9GPuT7z8VvRj7lPUvaw/hL6L/i2qXtb30M+5T1H1sr6Hfs59iqqX9T30c+5TVL2s76Gfc5+i6mV9D/2c+xRVL+t76Ofcp6h6Wd9DP+c+RdXL+h76Ofcpql7W99DPuU9R9bK+h37OfYqql/U99HPuU1S9rO+hn3OfouplfQ/9nPsUVS/re+jn3KeoelnfQz/nPkXVy/oe+jn3Kape1vfQz7lPUfWyvod+zn2Kqpf1PfRz7lNUvazvoZ9zn6LqZX0P/Zz7FFUv63vo59ynqHpZ30M/5z5F1cv6Hvo59ymqXtb30M+5T1H1sr6Hfs59iqqX9T30c+5TVL2s76Gfc5+i6mV9D/2c+xRVL+t76Ofcp6h6Wd9DP+c+RdXL+h76Ofcpql7W99DPuU9R9bK+h37OfYqql/U99HPuU1S9rO+hn3OfouplfQ/9nPsUVS/re+jn3KeoelnfQz/nPkXVy/oe+jn3Kape1vfQz7lPUfWyvod+zn2Kqpf1PfRz7lNUvazvoZ9zn6LqZX0P/Zz7FFUv63vo59ynqHpZ30M/5z5F1cv6Hvo59ymqXtb30M+5T1H1sr6Hfs59iqqX9T30c+5TVL2s76Gfc5+i6mV9D/2c+xRVL+t76Ofcp6h6Wd9DP+c+RdXL+h76Ofcpql7W99DPuU9R9bK+h37OfYqql/U99HPuU1S9rO+hn3OfouplfQ/9nPsUVS/re+jn3KeoelnfQz/nPkXVy/oe+jn3Kape1vfQz7lPUfWyvod+zn2Kqpf1PfRz7lNUvazvoZ9zn6LqZX0P/Zz7FFUv63vo59ynqHpZ30M/5z5F1cv6Hvo59ymqXtb30M+5T1H1sr6Hfs59iqqX9T30c+5TVL2s76Gfc5+i6mV9D/2c+xRVL+t76Ofcp6h6Wd9DP+c+RdXL+h76Ofcp6l7W36I/3/8A+v75+f6H54/Pz4/f/wE4g0Y963n8LwAAAABJRU5ErkJggg==" alt="eMule Mascot" />
+
+                            <div class="server-info">
+                                <h3>ED2K Network</h3>
+                                <div class="server-stat">
+                                    Status: <span class="txt-blue">Connected</span>
+                                </div>
+                                <div class="server-stat">
+                                    IP:Port: <span class="txt-blue">89.12.33.44:4662</span>
+                                </div>
+                                <div class="server-stat">
+                                    ID: <span class="txt-blue">High ID</span>
+                                </div>
+                                <h3>Kad Network</h3>
+                                <div class="server-stat">
+                                    Status: <span class="txt-blue">Firewalled</span>
+                                </div>
+                                <div class="server-stat">
+                                    Buddy: <span class="txt-red">None</span>
+                                </div>
+                                <h3>Session</h3>
+                                <div class="server-stat">
+                                    Up: <span class="txt-blue" id="totalUp">12.5 kB/s</span>
+                                </div>
+                                <div class="server-stat">
+                                    Down:
+                                    <span class="txt-blue" id="totalDownPanel"
+                                        >0.0 kB/s</span
+                                    >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-bar">
+                        <div class="status-panel" style="width: 150px">
+                            <span class="status-icon"></span> eD2K: Connected to
+                            DonkeyServer No1
+                        </div>
+                        <div class="status-panel" style="width: 150px">
+                            <span class="status-icon" style="background: #f0ad4e"></span>
+                            Kad: Firewalled
+                        </div>
+                        <div class="status-panel">Up: <span id="sbUp">12.5</span> kB/s</div>
+                        <div class="status-panel">
+                            Down: <span id="sbDown">0.0</span> kB/s
+                        </div>
+                        <div class="status-panel" style="flex-grow: 1">
+                            Queue: 1,420 / 2,500
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="status-bar">
-            <div class="status-panel" style="width: 150px">
-                <span class="status-icon"></span> eD2K: Connected to
-                DonkeyServer No1
-            </div>
-            <div class="status-panel" style="width: 150px">
-                <span class="status-icon" style="background: #f0ad4e"></span>
-                Kad: Firewalled
-            </div>
-            <div class="status-panel">Up: <span id="sbUp">12.5</span> kB/s</div>
-            <div class="status-panel">
-                Down: <span id="sbDown">0.0</span> kB/s
-            </div>
-            <div class="status-panel" style="flex-grow: 1">
-                Queue: 1,420 / 2,500
             </div>
         </div>
 
         <script>
-            // Configuration for the "Prank"
+            /* =========================================
+               YOUR ORIGINAL EMULE LOGIC
+               ========================================= */
             const files = [
                 {
                     name: "Matrix_Reloaded_DVDRip_XviD-BiN.CD1.avi",
@@ -537,7 +705,118 @@
                 document.getElementById("sbUp").innerText = upSpeed;
                 document.getElementById("totalUp").innerText =
                     upSpeed + " kB/s";
-            }, 500); // Update every 500ms
+            }, 500);
+
+            /* =========================================
+               NEW WINDOW MANAGEMENT LOGIC
+               ========================================= */
+            const windowEl = document.getElementById("win11-window");
+            const titleBar = document.getElementById("titleBar");
+            const resizeHandle = document.getElementById("resizeHandle");
+            
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+            let isResizing = false;
+            let initialWidth, initialHeight;
+
+            // Drag Functionality
+            titleBar.addEventListener("mousedown", (e) => {
+                if(e.target.closest('.win-btn')) return; // Don't drag if clicking buttons
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialLeft = windowEl.offsetLeft;
+                initialTop = windowEl.offsetTop;
+                // Center the transform if it hasn't been moved yet (removes CSS centering effect)
+                windowEl.style.transform = "none"; 
+                document.addEventListener("mousemove", onDrag);
+                document.addEventListener("mouseup", stopDrag);
+            });
+
+            function onDrag(e) {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                windowEl.style.left = `${initialLeft + dx}px`;
+                windowEl.style.top = `${initialTop + dy}px`;
+            }
+
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener("mousemove", onDrag);
+                document.removeEventListener("mouseup", stopDrag);
+            }
+
+            // Resize Functionality
+            resizeHandle.addEventListener("mousedown", (e) => {
+                isResizing = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialWidth = windowEl.offsetWidth;
+                initialHeight = windowEl.offsetHeight;
+                document.addEventListener("mousemove", onResize);
+                document.addEventListener("mouseup", stopResize);
+                e.preventDefault(); // Prevent text selection
+            });
+
+            function onResize(e) {
+                if (!isResizing) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                windowEl.style.width = `${initialWidth + dx}px`;
+                windowEl.style.height = `${initialHeight + dy}px`;
+            }
+
+            function stopResize() {
+                isResizing = false;
+                document.removeEventListener("mousemove", onResize);
+                document.removeEventListener("mouseup", stopResize);
+            }
+
+            // Maximize / Minimize
+            let isMaximized = false;
+            let savedDims = {};
+
+            function maximizeWindow() {
+                if (!isMaximized) {
+                    savedDims = {
+                        top: windowEl.style.top,
+                        left: windowEl.style.left,
+                        width: windowEl.style.width,
+                        height: windowEl.style.height,
+                        transform: windowEl.style.transform
+                    };
+                    windowEl.style.top = "0";
+                    windowEl.style.left = "0";
+                    windowEl.style.width = "100%";
+                    windowEl.style.height = "100%";
+                    windowEl.style.transform = "none";
+                    windowEl.style.borderRadius = "0";
+                    isMaximized = true;
+                } else {
+                    windowEl.style.top = savedDims.top;
+                    windowEl.style.left = savedDims.left;
+                    windowEl.style.width = savedDims.width;
+                    windowEl.style.height = savedDims.height;
+                    windowEl.style.transform = savedDims.transform;
+                    windowEl.style.borderRadius = "8px";
+                    isMaximized = false;
+                }
+            }
+
+            function minimizeWindow() {
+                // Simple minimize simulation
+                windowEl.style.transform = "scale(0.8) translateY(500px)";
+                windowEl.style.opacity = "0";
+                setTimeout(() => {
+                    // Logic to bring it back could go here, for now just an alert or reload
+                    alert("Window minimized! (Reload page to reset)");
+                }, 500);
+            }
+
+            function closeWindow() {
+                windowEl.style.display = "none";
+            }
         </script>
     </body>
 </html>

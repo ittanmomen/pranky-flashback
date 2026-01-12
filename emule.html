@@ -777,6 +777,22 @@
             let isMaximized = false;
             let savedDims = {};
 
+            // Start maximized on load:
+            // compute a centered "restored" rectangle (so restore works), save it, then maximize.
+            window.addEventListener('load', () => {
+                // compute current bounding rect (before maximizing)
+                const rect = windowEl.getBoundingClientRect();
+                savedDims = {
+                    top: `${Math.round((window.innerHeight - rect.height) / 2)}px`,
+                    left: `${Math.round((window.innerWidth - rect.width) / 2)}px`,
+                    width: `${Math.round(rect.width)}px`,
+                    height: `${Math.round(rect.height)}px`,
+                    transform: windowEl.style.transform || getComputedStyle(windowEl).transform
+                };
+                // call the existing maximize function to make it full-screen
+                maximizeWindow();
+            });
+
             function maximizeWindow() {
                 if (!isMaximized) {
                     savedDims = {
